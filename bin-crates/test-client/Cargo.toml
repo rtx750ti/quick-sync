@@ -1,0 +1,9 @@
+[package]
+name = "test-client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { workspace = true }
+client-sdk = { workspace = true }
+env-config = { workspace = true }

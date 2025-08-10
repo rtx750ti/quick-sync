@@ -1,0 +1,52 @@
+[workspace]
+resolver = "2"
+members = ["bin-crates/*", "lib-crates/*"]
+
+# 统一工作空间依赖配置
+[workspace.dependencies]
+core = { path = "./lib-crates/core" }
+client-sdk = { path = "./lib-crates/client-sdk" }
+sql-manager = { path = "./lib-crates/sql-manager" }
+env-config = { path = "./lib-crates/env-config" }
+axum = { version = "0.8.4", features = ["ws"] }
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "macros",
+    "sync",
+    "time",
+    "fs",
+] }
+tracing = { version = "0.1", default-features = false }
+tracing-subscriber = { version = "0.3", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] } # 精简特性
+sea-orm = { version = "1.1", default-features = false, features = [
+    "sqlx-sqlite",
+    "runtime-tokio",
+    "macros",
+    "with-chrono"
+] }
+directories = { version = "5.0" }
+once_cell = "1.21"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+[profile.dev]
+opt-level = 0
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 16
+panic = 'unwind'
+incremental = true
+overflow-checks = true
+
+[profile.release]
+opt-level = "z"         # 体积优化
+lto = "thin"            # 精简链接优化
+codegen-units = 1       # 最大化优化
+panic = "abort"         # 移除 panic 展开表
+strip = "symbols"       # 去除符号表
+incremental = false     # 禁用增量编译
+overflow-checks = false # 移除溢出检查

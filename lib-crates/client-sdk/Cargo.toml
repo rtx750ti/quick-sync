@@ -1,0 +1,8 @@
+[package]
+name = "client-sdk"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sql-manager = { workspace = true }
+env-config = { workspace = true }
