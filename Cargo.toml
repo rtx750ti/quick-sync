@@ -8,6 +8,9 @@ core = { path = "./lib-crates/core" }
 client-sdk = { path = "./lib-crates/client-sdk" }
 sql-manager = { path = "./lib-crates/sql-manager" }
 env-config = { path = "./lib-crates/env-config" }
+diff = { git = "https://gitee.com/quick-sync/diff.git", branch = "master" }
+task-scheduler = { git = "https://gitee.com/quick-sync/task-scheduler.git", branch = "master" }
+
 axum = { version = "0.8.4", features = ["ws"] }
 tokio = { version = "1", features = [
     "rt-multi-thread",
