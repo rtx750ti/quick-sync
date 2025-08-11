@@ -1,5 +1,2 @@
-use sql_manager::error::SqlManagerError;
-
-pub enum CoreError {
-    SqlError(SqlManagerError),
-}
+pub mod core;
+pub mod websocket;
