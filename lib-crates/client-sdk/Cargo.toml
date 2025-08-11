@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 sql-manager = { workspace = true }
 env-config = { workspace = true }
+tokio-tungstenite = { workspace = true }
+tokio = { workspace = true }
+futures-util = { workspace = true }

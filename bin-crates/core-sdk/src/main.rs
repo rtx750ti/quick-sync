@@ -3,10 +3,12 @@ use core::{
     socket::{ServerConfig, WebSocketServer},
 };
 
+use env_config::static_env::WEBSOCKET_HOST;
+
 #[tokio::main]
 async fn main() -> Result<(), CoreError> {
+    let config = ServerConfig::new(WEBSOCKET_HOST)?;
 
-    let config = ServerConfig::new("127.0.0.1:13985")?;
     let server = WebSocketServer::new(config)?;
 
     server.run().await?;

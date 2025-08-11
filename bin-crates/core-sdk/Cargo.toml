@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 tokio = { workspace = true }
 core = { workspace = true }
+env-config = { workspace = true }

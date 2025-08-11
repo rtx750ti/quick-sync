@@ -8,7 +8,9 @@ async fn main() -> Result<(), ClientError> {
     print!("{:?}", db_path);
 
     match QuickSyncClient::new(&db_path).await {
-        Ok(_) => {}
+        Ok(client_sdk) => {
+            client_sdk.run().await?;
+        }
         Err(error) => {
             println!("客户端出错了：{}", error.to_string())
         }

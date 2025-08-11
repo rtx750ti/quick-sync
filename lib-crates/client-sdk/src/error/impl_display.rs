@@ -15,6 +15,9 @@ impl Display for ClientError {
                 write!(f, "{}", var_error.to_string())
             }
             ClientError::String(msg) => write!(f, "{}", msg),
+            ClientError::WebSocketError(ws_error) => {
+                write!(f, "{}", ws_error.to_string())
+            }
         }
     }
 }

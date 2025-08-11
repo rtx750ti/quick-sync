@@ -1,5 +1,6 @@
 use env_config::error::EnvConfigError;
 use sql_manager::error::SqlManagerError;
+use tokio_tungstenite::tungstenite;
 
 use super::ClientError;
 
@@ -18,5 +19,11 @@ impl From<std::io::Error> for ClientError {
 impl From<EnvConfigError> for ClientError {
     fn from(value: EnvConfigError) -> Self {
         ClientError::EnvError(value)
+    }
+}
+
+impl From<tungstenite::Error> for ClientError {
+    fn from(value: tungstenite::Error) -> Self {
+        ClientError::WebSocketError(value)
     }
 }

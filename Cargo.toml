@@ -25,11 +25,15 @@ sea-orm = { version = "1.1", default-features = false, features = [
     "sqlx-sqlite",
     "runtime-tokio",
     "macros",
-    "with-chrono"
+    "with-chrono",
 ] }
 directories = { version = "5.0" }
 once_cell = "1.21"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
+tokio-tungstenite = { version = "*" }
+futures-util = { version = "0.3", default-features = false, features = [
+    "sink",
+] }
 
 [profile.dev]
 opt-level = 0
