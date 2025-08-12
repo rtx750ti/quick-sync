@@ -7,3 +7,4 @@ edition = "2024"
 tokio = { workspace = true }
 core = { workspace = true }
 env-config = { workspace = true }
+libloading = { workspace = true }

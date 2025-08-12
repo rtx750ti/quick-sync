@@ -1,9 +1,3 @@
-[patch."https://gitee.com/quick-sync/diff.git"]
-diff = { path = "C:\\project\\rust\\quick-sync\\diff" }
-
-[patch."https://gitee.com/quick-sync/task-scheduler.git"]
-task-scheduler = { path = "C:\\project\\rust\\quick-sync\\task-scheduler" }
-
 [source.crates-io]
 replace-with = "vendored-sources"
 

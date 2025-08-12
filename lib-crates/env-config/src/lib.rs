@@ -38,3 +38,16 @@ pub async fn get_db_path() -> Result<PathBuf, EnvConfigError> {
         Err(EnvConfigError::String("找不到数据库路径".to_owned()))
     }
 }
+
+pub fn get_root_path() -> Result<PathBuf, EnvConfigError> {
+    let mut root_path: PathBuf = std::env::current_exe().map_err(|e| {
+        EnvConfigError::String(format!(
+            "获取当前可执行文件路径失败: {}",
+            e
+        ))
+    })?;
+
+    root_path.pop();
+
+    Ok(root_path)
+}
