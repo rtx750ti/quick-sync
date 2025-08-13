@@ -36,6 +36,8 @@ futures-util = { version = "0.3", default-features = false, features = [
     "sink",
 ] }
 libloading = { version = "0.7" }
+walkdir = { version = "2.5" }
+rayon = { version = "1" }
 
 [profile.dev]
 opt-level = 0

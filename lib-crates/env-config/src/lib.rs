@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use crate::error::EnvConfigError;
 
+#[cfg(feature = "runtime-mode")]
 pub async fn get_db_path() -> Result<PathBuf, EnvConfigError> {
     #[cfg(debug_assertions)]
     {
@@ -39,6 +40,7 @@ pub async fn get_db_path() -> Result<PathBuf, EnvConfigError> {
     }
 }
 
+#[cfg(feature = "runtime-mode")]
 pub fn get_root_path() -> Result<PathBuf, EnvConfigError> {
     let mut root_path: PathBuf = std::env::current_exe().map_err(|e| {
         EnvConfigError::String(format!(

@@ -6,5 +6,10 @@ edition = "2024"
 [dependencies]
 tokio = { workspace = true }
 core = { workspace = true }
-env-config = { workspace = true }
+env-config = { workspace = true, features = ["runtime-mode"] }
 libloading = { workspace = true }
+
+[build-dependencies]
+env-config = { workspace = true, features = ["build-mode"] }
+walkdir = { workspace = true }
+rayon = { workspace = true }

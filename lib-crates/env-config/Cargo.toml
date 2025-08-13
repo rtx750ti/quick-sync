@@ -6,3 +6,13 @@ edition = "2024"
 [dependencies]
 directories = { workspace = true }
 tokio = { workspace = true }
+
+[features]
+default = ["runtime-mode"]
+build-mode = []
+runtime-mode = []
+
+[package.metadata.no-overlapping-features]
+groups = [
+    ["build-mode", "runtime-mode"]
+]
