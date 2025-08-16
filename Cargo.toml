@@ -8,6 +8,7 @@ core = { path = "./lib-crates/core" }
 client-sdk = { path = "./lib-crates/client-sdk" }
 sql-manager = { path = "./lib-crates/sql-manager" }
 env-config = { path = "./lib-crates/env-config" }
+webdav-client = { path = "./lib-crates/webdav-client" }
 
 axum = { version = "0.8.4", features = ["ws"] }
 tokio = { version = "1", features = [
@@ -38,6 +39,15 @@ futures-util = { version = "0.3", default-features = false, features = [
 libloading = { version = "0.7" }
 walkdir = { version = "2.5" }
 rayon = { version = "1" }
+reqwest = { version = "0.12", default-features = false, features = [
+    "rustls-tls",
+    "json",
+    "stream",
+    "gzip",
+    "cookies",
+] }
+quick-xml = { version = "0.38" }
+base64 = { version = "0.22" }
 
 [profile.dev]
 opt-level = 0

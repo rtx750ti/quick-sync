@@ -11,8 +11,11 @@ tokio = { workspace = true }
 default = ["runtime-mode"]
 build-mode = []
 runtime-mode = []
+lang-zh = []
+lang-en = []
 
 [package.metadata.no-overlapping-features]
 groups = [
-    ["build-mode", "runtime-mode"]
+    ["build-mode", "runtime-mode"],
+    ["lang-zh", "lang-en"]
 ]

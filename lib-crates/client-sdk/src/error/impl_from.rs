@@ -1,8 +1,8 @@
+use super::ClientError;
 use env_config::error::EnvConfigError;
 use sql_manager::error::SqlManagerError;
 use tokio_tungstenite::tungstenite;
-
-use super::ClientError;
+use webdav_client::error::WebDavClientError;
 
 impl From<SqlManagerError> for ClientError {
     fn from(value: SqlManagerError) -> Self {
@@ -25,5 +25,11 @@ impl From<EnvConfigError> for ClientError {
 impl From<tungstenite::Error> for ClientError {
     fn from(value: tungstenite::Error) -> Self {
         ClientError::WebSocketError(value)
+    }
+}
+
+impl From<webdav_client::error::WebDavClientError> for ClientError {
+    fn from(value: WebDavClientError) -> Self {
+        ClientError::WebDavClientError(value)
     }
 }

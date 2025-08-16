@@ -3,4 +3,21 @@ name = "webdav-client"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = ["friendly-error", "lang-zh"]
+friendly-error = []
+lang-zh = []
+lang-en = []
+
+
+[package.metadata.no-overlapping-features]
+groups = [
+    ["lang-zh", "lang-en"]
+]
+
 [dependencies]
+tokio = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+quick-xml = { workspace = true, version = "1.0.0", features = ["serialize"] }
+base64 = { workspace = true }

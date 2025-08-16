@@ -18,6 +18,9 @@ impl Display for ClientError {
             ClientError::WebSocketError(ws_error) => {
                 write!(f, "{}", ws_error.to_string())
             }
+            ClientError::WebDavClientError(webdav_error) => {
+                write!(f, "{}", webdav_error.to_string())
+            }
         }
     }
 }
