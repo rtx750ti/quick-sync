@@ -5,8 +5,6 @@ use env_config::get_db_path;
 async fn main() -> Result<(), ClientError> {
     let db_path = get_db_path().await?;
 
-    print!("{:?}", db_path);
-
     match QuickSyncClient::new(&db_path).await {
         Ok(client_sdk) => {
             client_sdk.run().await?;
@@ -18,4 +16,3 @@ async fn main() -> Result<(), ClientError> {
 
     Ok(())
 }
-

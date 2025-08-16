@@ -16,9 +16,9 @@ async fn main() -> Result<(), CoreError> {
     path.pop();
 
     path.push(if is_release {
-        "diff.dll"
+        "task_scheduler.dll"
     } else {
-        "diff.dll"
+        "task_scheduler.dll"
     });
 
     // 加载动态库（路径根据平台调整）
@@ -29,11 +29,10 @@ async fn main() -> Result<(), CoreError> {
             .expect("Failed to load library");
 
         // 加载符号（函数）
-        let add: Symbol<unsafe extern "C" fn(i32, i32) -> i32> =
-            lib.get(b"diff_add").expect("Failed to load symbol");
+        let add: Symbol<unsafe extern "C" fn()> =
+            lib.get(b"start").expect("Failed to load symbol");
 
-        let result = add(5, 7);
-        println!("5 + 7 = {}", result);
+        add();
     }
 
     let config = ServerConfig::new(WEBSOCKET_HOST)?;
