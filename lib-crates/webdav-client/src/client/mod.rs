@@ -1,12 +1,14 @@
-pub mod webdav_struct;
+pub mod structs;
 
-use crate::client::webdav_struct::MultiStatus;
 use crate::error::WebDavClientError;
 use crate::traits::client::WebDavClientTrait;
 use base64::Engine;
-use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue, CONTENT_TYPE};
-use reqwest::{Client, Url};
 use quick_xml::de::from_str;
+use reqwest::header::{
+    AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue,
+};
+use reqwest::{Client, Url};
+use structs::raw_xml::MultiStatus;
 
 pub struct WebDavClient {
     pub(crate) base_url: Url,
@@ -20,8 +22,16 @@ impl WebDavClient {
         password: &str,
     ) -> Result<Self, WebDavClientError> {
         // 1) 解析并规范化 base_url，确保结尾有 `/`
-        let mut base_url = Url::parse(base_url).map_err(|e| {
-            WebDavClientError::String(format!("Invalid base_url: {e}"))
+        let mut base_url = Url::parse(base_url).map_err(|_| {
+            #[cfg(feature = "lang-en")]
+            {
+                WebDavClientError::String("Invalid WebDav url".to_string())
+            }
+
+            #[cfg(feature = "lang-zh")]
+            {
+                WebDavClientError::String("WebDav地址出错".to_string())
+            }
         })?;
 
         if !base_url.path().ends_with('/') {

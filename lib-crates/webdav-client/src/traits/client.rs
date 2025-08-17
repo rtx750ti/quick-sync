@@ -1,6 +1,10 @@
-use crate::client::webdav_struct::MultiStatus;
+use crate::client::structs::raw_xml::MultiStatus;
 use crate::error::WebDavClientError;
 
 pub trait WebDavClientTrait {
-    async fn get_folders(&self) -> Result<MultiStatus, WebDavClientError>;
+    fn get_folders(
+        &self,
+    ) -> impl std::future::Future<
+        Output = Result<MultiStatus, WebDavClientError>,
+    > + Send; // 实现异步
 }

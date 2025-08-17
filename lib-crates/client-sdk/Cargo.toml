@@ -9,4 +9,4 @@ env-config = { workspace = true }
 tokio-tungstenite = { workspace = true }
 tokio = { workspace = true }
 futures-util = { workspace = true }
-webdav-client = { workspace = true }
+webdav-client = { workspace = true, features = ["lang-en"] }

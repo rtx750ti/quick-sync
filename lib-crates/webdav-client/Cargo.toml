@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = ["friendly-error", "lang-zh"]
+default = ["friendly-error"]
 friendly-error = []
 lang-zh = []
 lang-en = []
@@ -21,3 +21,6 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 quick-xml = { workspace = true, version = "1.0.0", features = ["serialize"] }
 base64 = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+serde_json = { workspace = true }
+percent-encoding = { workspace = true }

@@ -1,5 +1,6 @@
 use crate::traits::lang_trait::LangTrait;
 
+#[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub(crate) enum Lang {
     Zh,

@@ -255,6 +255,7 @@ dependencies = [
  "android-tzdata",
  "iana-time-zone",
  "num-traits",
+ "serde",
  "windows-link",
 ]
 
@@ -2811,9 +2812,12 @@ name = "webdav-client"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "chrono",
+ "percent-encoding",
  "quick-xml",
  "reqwest",
  "serde",
+ "serde_json",
  "tokio",
 ]
 

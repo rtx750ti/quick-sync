@@ -1,3 +1,4 @@
 /target
 /vendor
 .idea/*
+bin-crates/test-client
