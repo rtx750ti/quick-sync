@@ -1,5 +1,6 @@
+use crate::client::error::WebDavClientError;
 use crate::client::structs::raw_xml::MultiStatus;
-use crate::error::WebDavClientError;
+use crate::file_explorer::enums::DownloadMode;
 
 pub trait WebDavClientTrait {
     /// 列出根目录或指定路径下的文件夹
@@ -14,10 +15,11 @@ pub trait WebDavClientTrait {
     ) -> impl Future<Output = Result<String, WebDavClientError>> + Send;
 
     /// 下载文件
-    fn download_file(
+    fn download_file<'a>(
         &self,
-        file_path: &str,
-        config: Option<String>,
+        files_path: &'a Vec<&'a str>,
+        output_path: &'a str,
+        download_mode: Option<DownloadMode>,
     ) -> impl Future<Output = String> + Send;
 
     /// 上传文件

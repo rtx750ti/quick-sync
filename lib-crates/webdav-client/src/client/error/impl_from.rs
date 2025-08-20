@@ -1,4 +1,4 @@
-use crate::error::WebDavClientError;
+use crate::client::error::WebDavClientError;
 use std::io::Error;
 
 impl From<std::io::Error> for WebDavClientError {

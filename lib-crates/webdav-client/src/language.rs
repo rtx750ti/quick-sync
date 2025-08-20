@@ -1,4 +1,4 @@
-use crate::traits::lang_trait::LangTrait;
+use crate::public_traits::lang_trait::LangTrait;
 
 #[allow(dead_code)]
 #[derive(Copy, Clone)]

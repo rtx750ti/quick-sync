@@ -1,4 +1,4 @@
-use crate::error::WebDavClientError;
+use crate::client::error::WebDavClientError;
 
 #[cfg(feature = "friendly-error")]
 pub trait FriendlyErrorTrait {

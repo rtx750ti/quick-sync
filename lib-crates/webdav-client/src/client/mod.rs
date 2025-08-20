@@ -1,14 +1,18 @@
-mod impl_webdav_client_trait;
+pub mod enums;
+pub mod error;
+pub mod impl_traits;
 pub mod structs;
+pub mod traits;
 
-use crate::error::WebDavClientError;
+use crate::file_explorer::FileExplorer;
 use base64::Engine;
+use error::WebDavClientError;
 use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
 
 pub struct WebDavClient {
     pub(crate) base_url: Url,
-    pub(crate) client: Client,
+    pub(crate) file_explorer: FileExplorer,
 }
 
 impl WebDavClient {
@@ -38,7 +42,9 @@ impl WebDavClient {
         // 2) 构建带授权头的 reqwest Client
         let client = Self::build_client_with_auth(username, password)?;
 
-        Ok(Self { base_url, client })
+        let file_explorer = FileExplorer::new(client, base_url.to_owned());
+
+        Ok(Self { base_url, file_explorer })
     }
 
     /// 私有：构建带 Basic Auth 的 reqwest Client

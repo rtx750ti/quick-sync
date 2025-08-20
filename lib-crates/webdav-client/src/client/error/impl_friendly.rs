@@ -1,6 +1,6 @@
-use crate::error::WebDavClientError;
+use crate::client::error::WebDavClientError;
 use crate::language::{LANG, Lang};
-use crate::traits::friendly_trait::FriendlyErrorTrait;
+use crate::public_traits::friendly_trait::FriendlyErrorTrait;
 
 const MAX_LEN: usize = 25;
 

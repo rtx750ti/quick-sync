@@ -1,4 +1,4 @@
-pub mod error;
 pub mod client;
 mod language;
-pub mod traits;
+pub mod public_traits;
+mod file_explorer;

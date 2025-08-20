@@ -1,8 +1,8 @@
 use crate::error::ClientError;
 use sql_manager::manager::SqlManager;
 use std::path::PathBuf;
-use webdav_client::traits::client::WebDavClientTrait;
-use webdav_client::traits::friendly_trait::FriendlyErrorTrait;
+use webdav_client::client::traits::webdav_client_trait::WebDavClientTrait;
+use webdav_client::public_traits::friendly_trait::FriendlyErrorTrait;
 
 pub mod error;
 

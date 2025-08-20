@@ -1,7 +1,7 @@
 use crate::client::structs::friendly_xml::FriendlyResource;
 use crate::client::structs::raw_xml::MultiStatus;
-use crate::error::WebDavClientError;
-use crate::traits::friendly_trait::FriendlyXmlTrait;
+use crate::client::error::WebDavClientError;
+use crate::public_traits::friendly_trait::FriendlyXmlTrait;
 
 type TargetType = Vec<FriendlyResource>;
 

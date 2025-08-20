@@ -1,4 +1,4 @@
-use crate::error::WebDavClientError;
+use crate::client::error::WebDavClientError;
 use std::fmt::{Display, Formatter};
 
 impl Display for WebDavClientError {

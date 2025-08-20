@@ -12,5 +12,5 @@ pub enum ClientError {
     EnvError(EnvConfigError),
     String(String),
     WebSocketError(tungstenite::Error),
-    WebDavClientError(webdav_client::error::WebDavClientError),
+    WebDavClientError(webdav_client::client::error::WebDavClientError),
 }

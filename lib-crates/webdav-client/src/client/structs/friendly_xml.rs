@@ -1,7 +1,7 @@
 use crate::client::structs::raw_xml::{
     CurrentUserPrivilegeSet, MultiStatus, Prop, PropStat, Response,
 };
-use crate::error::WebDavClientError;
+use crate::client::error::WebDavClientError;
 use chrono::{DateTime, FixedOffset};
 
 #[derive(Debug, serde::Serialize)]
