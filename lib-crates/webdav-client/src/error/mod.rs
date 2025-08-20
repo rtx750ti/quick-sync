@@ -9,5 +9,6 @@ pub enum WebDavClientError {
     String(String),
     InvalidHeaderValue(String), // 这个就不用装http库了，直接输出string就行
     SerdeJsonErr(serde_json::Error),
-    SerdeErr(String)
+    SerdeErr(String),
+    ParseUrlErr(String),
 }

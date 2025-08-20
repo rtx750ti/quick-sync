@@ -2,9 +2,7 @@ use crate::error::ClientError;
 use sql_manager::manager::SqlManager;
 use std::path::PathBuf;
 use webdav_client::traits::client::WebDavClientTrait;
-use webdav_client::traits::friendly_trait::{
-    FriendlyErrorTrait, FriendlyXmlTrait,
-};
+use webdav_client::traits::friendly_trait::FriendlyErrorTrait;
 
 pub mod error;
 
@@ -37,21 +35,28 @@ impl QuickSyncClient {
         // ws_sender.send(Message::Text(msg.into())).await?;
 
         match webdav_client::client::WebDavClient::new(
-            "https://aki.teracloud.jp/dav/",
+            "https://dav.jianguoyun.com/dav/",
             "",
             "",
         ) {
-            Ok(client) => match client.get_folders().await {
-                Ok(data) => {
-                    let a = data.to_friendly()?;
-                    println!("{:?}", a);
-                    let a = data.to_friendly_json()?;
-                    println!("{}", a);
-                }
-                Err(e) => {
-                    eprintln!("{}", e.to_friendly_string())
-                }
-            },
+            Ok(client) => {
+                // match client.get_folders().await {
+                //     Ok(data) => {
+                //         let a = data.to_friendly()?;
+                //         println!("{:?}", a);
+                //         let a = data.to_friendly_json()?;
+                //         println!("{}", a);
+                //     }
+                //     Err(e) => {
+                //         eprintln!("{}", e.to_friendly_string())
+                //     }
+                // }
+
+                println!(
+                    "{:?}",
+                    client.get_file_meta("./我的坚果云/测试.xlsx").await
+                );
+            }
             Err(e) => {
                 eprintln!("{}", e.to_friendly_string())
             }

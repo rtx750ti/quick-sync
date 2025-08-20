@@ -10,6 +10,7 @@ impl Display for WebDavClientError {
             WebDavClientError::InvalidHeaderValue(e) => write!(f, "{}", e),
             WebDavClientError::SerdeJsonErr(e) => write!(f, "{}", e),
             WebDavClientError::SerdeErr(e) => write!(f, "{}", e),
+            WebDavClientError::ParseUrlErr(e) => write!(f, "{}", e),
         }
     }
 }

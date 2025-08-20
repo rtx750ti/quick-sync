@@ -51,8 +51,6 @@ pub struct Prop {
     #[serde(rename = "getcontenttype")]
     pub content_type: Option<String>,
 
-    // ===== 以下是扩展字段 =====
-
     /// `<creationdate>`：资源创建时间（ISO8601，通常以 Z 结尾表示 UTC）
     #[serde(rename = "creationdate")]
     pub creation_date: Option<String>,

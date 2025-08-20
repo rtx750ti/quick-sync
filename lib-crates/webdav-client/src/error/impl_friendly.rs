@@ -33,9 +33,12 @@ impl FriendlyErrorTrait for WebDavClientError {
             }
             WebDavClientError::SerdeJsonErr(_) => match LANG {
                 Lang::Zh => truncate_msg("JSON 序列化/反序列化错误"),
-                Lang::En => truncate_msg("JSON serialization/deserialization error"),
+                Lang::En => truncate_msg(
+                    "JSON serialization/deserialization error",
+                ),
             },
             WebDavClientError::SerdeErr(err_msg) => truncate_msg(err_msg),
+            WebDavClientError::ParseUrlErr(err) => truncate_msg(err),
         }
     }
 }

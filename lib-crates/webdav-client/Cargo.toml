@@ -19,7 +19,7 @@ groups = [
 tokio = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
-quick-xml = { workspace = true, version = "1.0.0", features = ["serialize"] }
+quick-xml = { workspace = true, features = ["serialize"] }
 base64 = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 serde_json = { workspace = true }

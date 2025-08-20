@@ -1,14 +1,10 @@
+mod impl_webdav_client_trait;
 pub mod structs;
 
 use crate::error::WebDavClientError;
-use crate::traits::client::WebDavClientTrait;
 use base64::Engine;
-use quick_xml::de::from_str;
-use reqwest::header::{
-    AUTHORIZATION, CONTENT_TYPE, HeaderMap, HeaderValue,
-};
+use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
-use structs::raw_xml::MultiStatus;
 
 pub struct WebDavClient {
     pub(crate) base_url: Url,
@@ -69,57 +65,90 @@ impl WebDavClient {
 
         Ok(client)
     }
-}
 
-impl WebDavClientTrait for WebDavClient {
-    async fn get_folders(&self) -> Result<MultiStatus, WebDavClientError> {
-        // WebDAV PROPFIND 请求体
-        let propfind_body = r#"<?xml version="1.0" encoding="utf-8" ?>
-<D:propfind xmlns:D="DAV:">
-  <D:allprop/>
-</D:propfind>"#;
+    fn check_start<'a>(
+        &self,
+        path: &'a str,
+    ) -> Result<&'a str, WebDavClientError> {
+        let path = path.trim();
 
-        // 组装请求头
-        let mut headers = HeaderMap::new();
-        headers.insert(
-            CONTENT_TYPE,
-            HeaderValue::from_static("application/xml"),
-        );
-        headers.insert("Depth", HeaderValue::from_static("1"));
-        headers
-            .insert("Accept", HeaderValue::from_static("application/xml"));
+        if path.is_empty() {
+            return Err(WebDavClientError::ParseUrlErr(
+                "路径为空".to_string(),
+            ));
+        }
 
-        // 发送 PROPFIND 到基准目录（已保证有尾部斜杠）
-        let res = self
-            .client
-            .request(
-                reqwest::Method::from_bytes(b"PROPFIND").unwrap(),
-                self.base_url.clone(),
-            )
-            .headers(headers)
-            .body(propfind_body)
-            .send()
-            .await
-            .map_err(|e| WebDavClientError::String(e.to_string()))?;
+        if path.starts_with("../") {
+            return Err(WebDavClientError::ParseUrlErr(
+                "禁止返回上一级".to_string(),
+            ));
+        }
 
-        let status = res.status();
-        let xml_text = res
-            .text()
-            .await
-            .map_err(|e| WebDavClientError::String(e.to_string()))?;
+        if path.contains("..") {
+            return Err(WebDavClientError::ParseUrlErr(
+                "路径不能出现'..'".to_string(),
+            ));
+        }
 
-        if !status.is_success() && status.as_u16() != 207 {
-            // WebDAV 成功常见为 207 Multi-Status
-            return Err(WebDavClientError::String(format!(
-                "Unexpected status {status}: {xml}",
-                status = status,
-                xml = xml_text
+        Ok(path)
+    }
+
+    fn check_parse_url(
+        &self,
+        path: &str,
+    ) -> Result<Url, WebDavClientError> {
+        let url = self.base_url.to_owned();
+        let url = url.join(path).map_err(|err| {
+            WebDavClientError::ParseUrlErr(err.to_string())
+        })?;
+        Ok(url)
+    }
+
+    fn check_end<'a>(
+        &self,
+        path: &'a str,
+    ) -> Result<&'a str, WebDavClientError> {
+        let path = path.trim();
+
+        // 去掉末尾 / 再判断文件类型
+        let trimmed_path = path.trim_end_matches('/');
+        let last_segment =
+            trimmed_path.rsplit('/').next().ok_or_else(|| {
+                WebDavClientError::ParseUrlErr("路径格式错误".to_string())
+            })?;
+
+        let is_file = last_segment.contains('.');
+
+        // 如果是文件但原路径以 / 结尾，报错
+        if is_file && path.ends_with('/') {
+            return Err(WebDavClientError::ParseUrlErr(format!(
+                "'{}'不能以 '/' 结尾",
+                path
             )));
         }
 
-        let multi_status: MultiStatus = from_str(&xml_text)
-            .map_err(|e| WebDavClientError::String(e.to_string()))?;
+        // 跨平台最大兼容非法字符（文件夹和文件都检查）
+        let invalid_chars =
+            ['\\', '/', ':', '*', '?', '"', '<', '>', '|', '\0'];
+        if last_segment.chars().any(|c| invalid_chars.contains(&c)) {
+            return Err(WebDavClientError::ParseUrlErr(format!(
+                "'{}'包含非法字符",
+                path
+            )));
+        }
 
-        Ok(multi_status)
+        Ok(path)
+    }
+
+    /// 将输入 path 解析为 Url，做规则校验并格式化为相对于 base_url 的相对路径。
+    pub fn format_url_path(
+        &self,
+        path: &str,
+    ) -> Result<String, WebDavClientError> {
+        self.check_start(path)?;
+        let path_url_entity = self.check_parse_url(path)?;
+        self.check_end(path)?;
+
+        Ok(path_url_entity.to_string())
     }
 }

@@ -22,7 +22,7 @@ fn format_size(len: Option<u64>) -> Option<String> {
     // 将字节数转换为友好化的字符串表示
     len.map(|len| {
         if len < 1024 {
-            format!("{}Byte", len)
+            format!("{}B", len)
         } else if len < 1024 * 1024 {
             format!("{:.3}KB", len as f64 / 1024.0)
         } else if len < 1024 * 1024 * 1024 {
