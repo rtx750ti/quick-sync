@@ -4,7 +4,6 @@ pub mod impl_traits;
 pub mod structs;
 pub mod traits;
 
-use crate::file_explorer::FileExplorer;
 use base64::Engine;
 use error::WebDavClientError;
 use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
@@ -12,7 +11,7 @@ use reqwest::{Client, Url};
 
 pub struct WebDavClient {
     pub(crate) base_url: Url,
-    pub(crate) file_explorer: FileExplorer,
+    pub(crate) client: Client,
 }
 
 impl WebDavClient {
@@ -42,9 +41,7 @@ impl WebDavClient {
         // 2) 构建带授权头的 reqwest Client
         let client = Self::build_client_with_auth(username, password)?;
 
-        let file_explorer = FileExplorer::new(client, base_url.to_owned());
-
-        Ok(Self { base_url, file_explorer })
+        Ok(Self { base_url, client })
     }
 
     /// 私有：构建带 Basic Auth 的 reqwest Client
@@ -84,6 +81,10 @@ impl WebDavClient {
             ));
         }
 
+        if path.eq("/") || path.eq("./") {
+            return Ok(path);
+        }
+
         if path.starts_with("../") {
             return Err(WebDavClientError::ParseUrlErr(
                 "禁止返回上一级".to_string(),
@@ -116,6 +117,10 @@ impl WebDavClient {
     ) -> Result<&'a str, WebDavClientError> {
         let path = path.trim();
 
+        if path.eq("/") || path.eq("./") {
+            return Ok(path);
+        }
+
         // 去掉末尾 / 再判断文件类型
         let trimmed_path = path.trim_end_matches('/');
         let last_segment =
@@ -146,14 +151,54 @@ impl WebDavClient {
         Ok(path)
     }
 
-    /// 将输入 path 解析为 Url，做规则校验并格式化为相对于 base_url 的相对路径。
+    /// 将用户输入的路径进行基础校验和 URL 拼接，返回完整的访问路径字符串。
+    ///
+    /// 该方法执行三个步骤：
+    /// 1. **check_start**：初步校验路径开头是否合法（空路径、回溯 `..` 等）。
+    /// 2. **check_parse_url**：基于 `self.base_url` 调用 [`Url::join`] 生成完整 URL，自动归一化路径（去掉 `./`、多余斜杠等）。
+    /// 3. **check_end**：校验路径结尾是否合法（文件不能以 `/` 结尾、末段不能含非法字符）。
+    ///
+    /// 此方法只做轻量校验，避免明显错误，其余规则交由服务器处理。
+    ///
+    /// # 参数
+    /// * `path` - 相对于 `base_url` 的路径，可以包含相对路径符号（如 `./foo`）
+    ///
+    /// # 返回
+    /// 成功时返回完整 URL 字符串；失败时返回 [`WebDavClientError`]
+    ///
+    /// # 示例
+    /// ```
+    /// use reqwest::Url;
+    /// use webdav_client::client::error::WebDavClientError;
+    /// use webdav_client::client::WebDavClient;
+    ///
+    /// fn example() -> Result<(), WebDavClientError> {
+    /// let client = WebDavClient::new(
+    ///     "https://dav.example.com/dav/我的坚果云/",
+    ///     "user",
+    ///     "password"
+    /// )?;
+    ///
+    /// // 传入相对路径，自动规范化为绝对 URL
+    /// let url_str = client.format_url_path("./书签")?;
+    /// assert_eq!(
+    ///     url_str,
+    ///     "https://dav.example.com/dav/%E6%88%91%E7%9A%84%E5%9D%9A%E6%9E%9C%E4%BA%91/%E4%B9%A6%E7%AD%BE"
+    /// );
+    /// assert_eq!(
+    ///     url_str,
+    ///     "https://dav.example.com/dav/我的坚果云/书签"
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn format_url_path(
         &self,
         path: &str,
     ) -> Result<String, WebDavClientError> {
-        self.check_start(path)?;
-        let path_url_entity = self.check_parse_url(path)?;
-        self.check_end(path)?;
+        self.check_start(path)?; // 先检查地址开头有没有问题
+        let path_url_entity = self.check_parse_url(path)?; // 地址开头没问题就检查解析有没有问题
+        self.check_end(path)?; // 最后检查解析完的地址有没有问题
 
         Ok(path_url_entity.to_string())
     }

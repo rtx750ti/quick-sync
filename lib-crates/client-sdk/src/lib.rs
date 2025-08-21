@@ -1,8 +1,11 @@
 use crate::error::ClientError;
 use sql_manager::manager::SqlManager;
 use std::path::PathBuf;
-use webdav_client::client::traits::webdav_client_trait::WebDavClientTrait;
-use webdav_client::public_traits::friendly_trait::FriendlyErrorTrait;
+use webdav_client::client::enums::client_enum::Depth;
+use webdav_client::client::traits::folder::Folder;
+use webdav_client::public_traits::friendly_trait::{
+    FriendlyErrorTrait, FriendlyXmlTrait,
+};
 
 pub mod error;
 
@@ -35,27 +38,28 @@ impl QuickSyncClient {
         // ws_sender.send(Message::Text(msg.into())).await?;
 
         match webdav_client::client::WebDavClient::new(
-            "https://dav.jianguoyun.com/dav/",
+            "https://dav.jianguoyun.com/dav/我的坚果云",
             "",
             "",
         ) {
             Ok(client) => {
-                // match client.get_folders().await {
-                //     Ok(data) => {
-                //         let a = data.to_friendly()?;
-                //         println!("{:?}", a);
-                //         let a = data.to_friendly_json()?;
-                //         println!("{}", a);
-                //     }
-                //     Err(e) => {
-                //         eprintln!("{}", e.to_friendly_string())
-                //     }
-                // }
+                match client.get_folders("./客户.xlsx", Depth::One).await
+                {
+                    Ok(data) => {
+                        // let a = data.to_friendly()?;
+                        // println!("{:?}", a);
+                        let a = data.to_friendly_json()?;
+                        println!("{}", a);
+                    }
+                    Err(e) => {
+                        eprintln!("{}", e.to_friendly_string())
+                    }
+                }
 
-                println!(
-                    "{:?}",
-                    client.get_file_meta("./我的坚果云/测试.xlsx").await
-                );
+                let file_meta =  client.get_file_meta("/dav/%e6%88%91%e7%9a%84%e5%9d%9a%e6%9e%9c%e4%ba%91/%e6%96%b0%e5%bb%ba%e6%96%87%e6%9c%ac%e6%96%87%e6%a1%a3.txt").await?;
+
+                println!("文件meta1  {:?}", file_meta.to_friendly());
+                println!("文件meta2  {}", file_meta.to_friendly_json()?);
             }
             Err(e) => {
                 eprintln!("{}", e.to_friendly_string())
