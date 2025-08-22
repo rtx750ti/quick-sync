@@ -1,6 +1,7 @@
 use crate::client::error::WebDavClientError;
 use crate::language::{LANG, Lang};
-use crate::public_traits::friendly_trait::FriendlyErrorTrait;
+#[cfg(feature = "friendly-error")]
+use crate::public_traits::friendly::FriendlyError;
 
 const MAX_LEN: usize = 25;
 
@@ -16,7 +17,7 @@ fn truncate_msg(msg: &str) -> String {
 }
 
 #[cfg(feature = "friendly-error")]
-impl FriendlyErrorTrait for WebDavClientError {
+impl FriendlyError for WebDavClientError {
     fn to_friendly_string(&self) -> String {
         match self {
             WebDavClientError::RequestErr(_) => match LANG {

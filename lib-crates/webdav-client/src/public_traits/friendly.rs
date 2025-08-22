@@ -1,11 +1,12 @@
 use crate::client::error::WebDavClientError;
 
 #[cfg(feature = "friendly-error")]
-pub trait FriendlyErrorTrait {
+pub trait FriendlyError {
     fn to_friendly_string(&self) -> String;
 }
 
-pub trait FriendlyXmlTrait<T, U>
+#[cfg(feature = "friendly-xml")]
+pub trait FriendlyXml<T, U>
 where
     T: serde::Serialize,
     U: serde::Serialize,

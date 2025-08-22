@@ -6,6 +6,7 @@ use crate::client::traits::folder::Folder;
 use crate::public_enums::WebDavMethod;
 use quick_xml::de::from_str;
 use reqwest::header::{CONTENT_TYPE, HeaderMap, HeaderValue};
+use crate::client::traits::url_trait::UrlParse;
 
 impl Folder for WebDavClient {
     async fn get_folders(

@@ -265,6 +265,7 @@ version = "0.1.0"
 dependencies = [
  "env-config",
  "futures-util",
+ "percent-encoding",
  "sql-manager",
  "tokio",
  "tokio-tungstenite",
@@ -2813,6 +2814,8 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "chrono",
+ "dotenvy",
+ "env-config",
  "percent-encoding",
  "quick-xml",
  "reqwest",

@@ -49,6 +49,7 @@ reqwest = { version = "0.12", default-features = false, features = [
 quick-xml = { version = "0.38" }
 base64 = { version = "0.22" }
 percent-encoding = { version = "2.3" }
+dotenvy = { version = "0.15.7" }
 
 [profile.dev]
 opt-level = 0

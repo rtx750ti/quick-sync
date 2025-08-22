@@ -3,12 +3,15 @@ name = "webdav-client"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+doctest = false
+
 [features]
-default = ["friendly-error"]
+default = ["friendly-xml", "lang-en", "friendly-error"]
 friendly-error = []
+friendly-xml = []
 lang-zh = []
 lang-en = []
-
 
 [package.metadata.no-overlapping-features]
 groups = [
@@ -24,3 +27,7 @@ base64 = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 serde_json = { workspace = true }
 percent-encoding = { workspace = true }
+
+[dev-dependencies]
+env-config = { workspace = true }
+dotenvy = {workspace = true}

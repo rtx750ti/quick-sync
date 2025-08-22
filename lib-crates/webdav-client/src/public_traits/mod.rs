@@ -1,2 +1,2 @@
-pub mod friendly_trait;
+pub mod friendly;
 pub(crate) mod lang_trait;
