@@ -7,11 +7,11 @@ use std::{
 };
 use walkdir::WalkDir;
 
-/// 检查 link-lib 目录是否存在
-fn link_lib_exists(project_root_path: &str) -> bool {
-    let link_lib_path = Path::new(project_root_path).join("link-lib");
-    link_lib_path.exists() && link_lib_path.is_dir()
-}
+// /// 检查 link-lib 目录是否存在
+// fn link_lib_exists(project_root_path: &str) -> bool {
+//     let link_lib_path = Path::new(project_root_path).join("link-lib");
+//     link_lib_path.exists() && link_lib_path.is_dir()
+// }
 
 /// 获取 link-lib 目录下的所有第一层文件夹路径（动态库项目目录）
 fn get_link_lib_folders(project_root_path: &str) -> Vec<PathBuf> {

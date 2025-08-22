@@ -3,10 +3,10 @@ use crate::client::enums::client_enum::Depth;
 use crate::client::error::WebDavClientError;
 use crate::client::structs::raw_xml::MultiStatus;
 use crate::client::traits::folder::Folder;
+use crate::client::traits::url_trait::UrlParse;
 use crate::public_enums::WebDavMethod;
 use quick_xml::de::from_str;
 use reqwest::header::{CONTENT_TYPE, HeaderMap, HeaderValue};
-use crate::client::traits::url_trait::UrlParse;
 
 impl Folder for WebDavClient {
     async fn get_folders(
@@ -70,7 +70,10 @@ impl Folder for WebDavClient {
         self.get_folders(file_path, Depth::Zero).await
     }
 
-    async fn exists(&self, _path: &str) -> Result<bool, WebDavClientError> {
+    async fn exists(
+        &self,
+        _path: &str,
+    ) -> Result<bool, WebDavClientError> {
         Err(WebDavClientError::String("todo".to_string()))
     }
 }

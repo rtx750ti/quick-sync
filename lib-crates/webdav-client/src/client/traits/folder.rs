@@ -27,7 +27,6 @@ pub trait Folder {
     /// use webdav_client::client::WebDavClient;
     /// use webdav_client::client::error::WebDavClientError;
     /// use webdav_client::client::traits::folder::Folder;
-    /// use webdav_client::client::traits::webdav_client_trait::WebDavClientTrait;
     ///
     /// # async fn run() -> Result<(), WebDavClientError> {
     /// let client = WebDavClient::new(
@@ -70,9 +69,6 @@ pub trait Folder {
     /// use webdav_client::client::WebDavClient;
     /// use webdav_client::client::error::WebDavClientError;
     /// use webdav_client::client::traits::folder::Folder;
-    ///
-    /// #
-    /// use webdav_client::client::traits::webdav_client_trait::WebDavClientTrait;
     ///
     /// async fn run() -> Result<(), WebDavClientError> {
     /// let client = WebDavClient::new(

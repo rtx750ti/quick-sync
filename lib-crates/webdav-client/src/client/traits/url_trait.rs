@@ -1,5 +1,4 @@
 use crate::client::error::WebDavClientError;
-use percent_encoding::percent_decode_str;
 use reqwest::Url;
 use std::path::{Path, PathBuf};
 
