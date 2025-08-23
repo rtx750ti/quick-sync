@@ -10,7 +10,6 @@ type TargetType = Vec<FriendlyResource>;
 #[cfg(feature = "friendly-xml")]
 impl FriendlyXml<FriendlyResource, TargetType> for MultiStatus {
     fn to_friendly(&self) -> Result<TargetType, WebDavClientError> {
-        // 调用你刚才写的 FriendlyResource::new
         FriendlyResource::new(self.to_owned())
     }
 }

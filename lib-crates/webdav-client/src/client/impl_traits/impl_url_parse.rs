@@ -1,169 +1,83 @@
 use crate::client::WebDavClient;
 use crate::client::error::WebDavClientError;
+use crate::client::structs::webdav_child_client::WebDavChildClientKey;
 use crate::client::traits::url_trait::UrlParse;
-use percent_encoding::percent_decode_str;
+use async_trait::async_trait;
 use reqwest::Url;
-use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::sync::Arc;
 
+#[async_trait]
 impl UrlParse for WebDavClient {
-    fn check_start(
+    async fn format_url_path(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         path: &str,
     ) -> Result<String, WebDavClientError> {
-        // 1. URL 解码
-        let mut path = percent_encoding::percent_decode_str(path)
-            .decode_utf8_lossy()
-            .to_string()
-            .trim()
-            .to_string();
-
-        if path.is_empty() {
-            return Err(WebDavClientError::ParseUrlErr(
-                "路径为空".to_string(),
-            ));
+        #[cfg(feature = "show-test-detail")]
+        {
+            println!("--- format_url_path 调试信息 ---");
+            println!("输入 path: {}", path);
+            println!(
+                "WebDavChildClientKey.base_url: {}",
+                web_dav_child_client_key.base_url
+            );
+            println!(
+                "WebDavChildClientKey.username: {}",
+                web_dav_child_client_key.username
+            );
         }
 
-        // 2. 获取 base_url 的路径部分（已解码）
-        let base_path_decoded =
-            percent_encoding::percent_decode_str(self.base_url.path())
-                .decode_utf8_lossy()
-                .to_string();
+        let base_url = Url::from_str(&web_dav_child_client_key.base_url)
+            .expect("base_url 在 new 时已验证为合法 URL"); // 这个panic永远不会触发，因为在web_dav_child_client_key构建时就已经避免了这个问题
 
-        // 3. 如果传入路径以 base_url 路径开头，裁掉它
-        if path.starts_with(&base_path_decoded) {
-            path = path[base_path_decoded.len()..].to_string();
+        let joined_url = base_url
+            .join(path)
+            .map_err(|e| WebDavClientError::ParseUrlErr(e.to_string()))?;
+
+        #[cfg(feature = "show-test-detail")]
+        {
+            println!("拼接后的 joined_url: {}", joined_url);
         }
 
-        // 4. 如果还以 `/` 开头，转成相对路径
-        if path.starts_with('/') {
-            path = format!(".{}", path);
-        }
+        let err = Err(WebDavClientError::ParseUrlErr(
+            "路径越界，禁止访问上级目录".to_string(),
+        ));
 
-        // 5. 禁止回溯
-        if path.starts_with("../") {
-            return Err(WebDavClientError::ParseUrlErr(
-                "禁止返回上一级".to_string(),
-            ));
-        }
-        if path.contains("..") {
-            return Err(WebDavClientError::ParseUrlErr(
-                "路径不能出现'..'".to_string(),
-            ));
-        }
-
-        Ok(path)
-    }
-
-    fn try_parse_url(&self, path: &str) -> Result<Url, WebDavClientError> {
-        let url = self.base_url.to_owned();
-        let url = url.join(path).map_err(|err| {
-            WebDavClientError::ParseUrlErr(err.to_string())
-        })?;
-        Ok(url)
-    }
-
-    fn check_end(&self, path: &str) -> Result<String, WebDavClientError> {
-        let path = path.trim().to_string();
-
-        if path.eq("/") || path.eq("./") {
-            return Ok(path);
-        }
-
-        // 去掉末尾 / 再判断文件类型
-        let trimmed_path = path.trim_end_matches('/');
-        let last_segment =
-            trimmed_path.rsplit('/').next().ok_or_else(|| {
-                WebDavClientError::ParseUrlErr("路径格式错误".to_string())
-            })?;
-
-        let is_file = last_segment.contains('.');
-
-        // 如果是文件但原路径以 / 结尾，报错
-        if is_file && path.ends_with('/') {
-            return Err(WebDavClientError::ParseUrlErr(format!(
-                "'{}'不能以 '/' 结尾",
-                path
-            )));
-        }
-
-        // 跨平台最大兼容非法字符（文件夹和文件都检查）
-        let invalid_chars =
-            ['\\', '/', ':', '*', '?', '"', '<', '>', '|', '\0'];
-        if last_segment.chars().any(|c| invalid_chars.contains(&c)) {
-            return Err(WebDavClientError::ParseUrlErr(format!(
-                "'{}'包含非法字符",
-                path
-            )));
-        }
-
-        Ok(path)
-    }
-
-    fn normalize_path(&self, path: &Path) -> PathBuf {
-        let mut result = PathBuf::new();
-        for comp in path.components() {
-            match comp {
-                std::path::Component::CurDir => {} // 忽略当前目录符号 `.`
-                std::path::Component::ParentDir => {
-                    result.pop(); // 遇到 `..` 回退一级
-                }
-                std::path::Component::RootDir => {} // 忽略根目录符号 `/`
-                other => result.push(other), // 其他正常路径段直接加入
+        if !joined_url.as_str().starts_with(base_url.as_str()) {
+            #[cfg(feature = "show-test-detail")]
+            {
+                println!("❌ 检查失败：joined_url 不以 base_url 开头");
             }
-        }
-        result
-    }
-
-    fn is_subpath(&self, base: &Path, target: &Path) -> bool {
-        let base_norm = self.normalize_path(base);
-        let target_norm = self.normalize_path(target);
-        target_norm.starts_with(&base_norm)
-    }
-
-    fn decode_url_path(&self, p: &str) -> String {
-        percent_decode_str(p).decode_utf8_lossy().to_string()
-    }
-
-    fn format_url_path(
-        &self,
-        path: &str,
-    ) -> Result<String, WebDavClientError> {
-        // 1. 检查路径开头是否合法（禁止空路径、禁止 `..` 回溯等）
-        let path = self.check_start(path)?;
-
-        // 2. 基于 base_url 拼接成完整 URL（reqwest::Url 会自动处理 ./、多余斜杠等）
-        let path_url_entity = self.try_parse_url(&path)?;
-
-        // 3. 检查路径结尾是否合法（文件不能以 `/` 结尾、末段不能含非法字符等）
-        self.check_end(&path)?;
-
-        // 4. 校验协议和主机是否与 base_url 一致，防止跨域访问
-        let same_scheme =
-            path_url_entity.scheme() == self.base_url.scheme();
-        let same_host =
-            path_url_entity.host_str() == self.base_url.host_str();
-        if !same_scheme || !same_host {
-            return Err(WebDavClientError::ParseUrlErr(
-                "主机不一致".to_string(),
-            ));
+            return err;
         }
 
-        // 5. 对 base_url 和目标 URL 的路径部分进行 URL 解码
-        //    这样可以避免 `%XX` 编码大小写不一致导致的比较失败
-        let base_path_buf =
-            PathBuf::from(self.decode_url_path(self.base_url.path()));
-        let target_path_buf =
-            PathBuf::from(self.decode_url_path(path_url_entity.path()));
-
-        // 6. 检查目标路径是否在 base 路径之下（防止目录穿越）
-        if !self.is_subpath(&base_path_buf, &target_path_buf) {
-            return Err(WebDavClientError::ParseUrlErr(format!(
-                "路径不是基础路径的子路径: base={}, target={}",
-                base_path_buf.to_string_lossy().to_string(),
-                target_path_buf.to_string_lossy().to_string()
-            )));
+        if joined_url.scheme() != base_url.scheme()
+            || joined_url.host_str() != base_url.host_str()
+            || !joined_url.path().starts_with(base_url.path())
+        {
+            #[cfg(feature = "show-test-detail")]
+            {
+                println!("❌ 检查失败：scheme/host/path 不匹配");
+                println!("base_url.scheme(): {}", base_url.scheme());
+                println!("joined_url.scheme(): {}", joined_url.scheme());
+                println!("base_url.host_str(): {:?}", base_url.host_str());
+                println!(
+                    "joined_url.host_str(): {:?}",
+                    joined_url.host_str()
+                );
+                println!("base_url.path(): {}", base_url.path());
+                println!("joined_url.path(): {}", joined_url.path());
+            }
+            return err;
         }
 
-        Ok(path_url_entity.to_string())
+        #[cfg(feature = "show-test-detail")]
+        {
+            println!("✅ 检查通过，返回 URL: {}", joined_url);
+            println!("------------------------------");
+        }
+
+        Ok(joined_url.to_string())
     }
 }

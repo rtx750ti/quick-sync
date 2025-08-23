@@ -1,5 +1,5 @@
+use tokio::sync::TryLockError;
 mod impl_display;
-pub mod impl_friendly;
 mod impl_from;
 
 #[derive(Debug)]
@@ -11,4 +11,6 @@ pub enum WebDavClientError {
     SerdeJsonErr(serde_json::Error),
     SerdeErr(String),
     ParseUrlErr(String),
+    TryLockError(TryLockError),
+    NotFindClient(String)
 }

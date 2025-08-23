@@ -1,70 +1,52 @@
 use crate::client::error::WebDavClientError;
-use reqwest::Url;
-use std::path::{Path, PathBuf};
+use crate::client::structs::webdav_child_client::WebDavChildClientKey;
+use async_trait::async_trait;
 
+#[async_trait]
 pub trait UrlParse {
-    /// 检查路径开头是否合法
-    fn check_start(&self, path: &str)
-    -> Result<String, WebDavClientError>;
-
-    /// 基于 base_url 拼接 URL
-    fn try_parse_url(&self, path: &str) -> Result<Url, WebDavClientError>;
-
-    /// 检查路径结尾是否合法
-    fn check_end(&self, path: &str) -> Result<String, WebDavClientError>;
-
-    /// 规范化路径（去掉 `.`、处理 `..` 等）
-    fn normalize_path(&self, path: &Path) -> PathBuf;
-
-    /// 判断 target 是否是 base 的子路径
-    fn is_subpath(&self, base: &Path, target: &Path) -> bool;
-
-    /// URL 解码
-    fn decode_url_path(&self, p: &str) -> String;
-
-    /// 将用户输入的路径进行基础校验和 URL 拼接，返回完整的访问路径字符串。
+    /// 将用户输入的路径与 WebDAV 基础 URL 安全拼接，返回完整可访问的 URL 字符串。
     ///
-    /// 该方法执行三个步骤：
-    /// 1. **check_start**：初步校验路径开头是否合法（空路径、回溯 `..` 等）。
-    /// 2. **check_parse_url**：基于 `self.base_url` 调用 [`Url::join`] 生成完整 URL，自动归一化路径（去掉 `./`、多余斜杠等）。
-    /// 3. **check_end**：校验路径结尾是否合法（文件不能以 `/` 结尾、末段不能含非法字符）。
+    /// ## 安全检查
+    /// 本方法会拒绝任何试图访问 `base_url` 之外资源的路径，包括但不限于：
+    /// - 使用 `..` 回溯上级目录
+    /// - 使用绝对路径跳转到不同目录（如 `/dav2/...`）
+    /// - 使用完整 URL 指向不同 host / scheme
+    /// - 使用 URL 编码绕过路径检查（如 `%2F`）
     ///
-    /// 此方法只做轻量校验，避免明显错误，其余规则交由服务器处理。
+    /// ## 处理流程
+    /// 1. 解析并验证 `base_url`（构造时已保证合法性）
+    /// 2. 使用 [`Url::join`] 拼接 `path`，自动归一化路径
+    /// 3. 校验拼接结果的 scheme、host、path 前缀是否与 `base_url` 一致
     ///
-    /// # 参数
-    /// * `path` - 相对于 `base_url` 的路径，可以包含相对路径符号（如 `./foo`）
+    /// ## 参数
+    /// * `path` - 可以是相对路径、绝对路径或完整 URL，支持 `./`、URL 编码等
     ///
-    /// # 返回
-    /// 成功时返回完整 URL 字符串；失败时返回 [`WebDavClientError`]
+    /// ## 返回
+    /// 成功时返回完整 URL（编码后的字符串），失败时返回 [`WebDavClientError`]
     ///
-    /// # 示例
+    /// ## 示例
     /// ```
-    /// use reqwest::Url;
-    /// use webdav_client::client::error::WebDavClientError;
-    /// use webdav_client::client::WebDavClient;
-    ///
-    /// fn example() -> Result<(), WebDavClientError> {
-    /// let client = WebDavClient::new(
+    /// # use webdav_client::client::error::WebDavClientError;
+    /// # use webdav_client::client::traits::url_trait::UrlParse;
+    /// # use webdav_client::client::{WebDavClient, structs::webdav_child_client::WebDavChildClientKey};
+    /// # async fn example() -> Result<(), WebDavClientError> {
+    /// let client = WebDavClient::new();
+    /// let key = WebDavChildClientKey::new(
     ///     "https://dav.example.com/dav/我的坚果云/",
-    ///     "user",
-    ///     "password"
+    ///     "username"
     /// )?;
     ///
-    /// // 传入相对路径，自动规范化为绝对 URL
-    /// let url_str = client.format_url_path("./书签")?;
+    /// let url_str = client.format_url_path(&key, "./书签").await?;
     /// assert_eq!(
     ///     url_str,
     ///     "https://dav.example.com/dav/%E6%88%91%E7%9A%84%E5%9D%9A%E6%9E%9C%E4%BA%91/%E4%B9%A6%E7%AD%BE"
     /// );
-    /// assert_eq!(
-    ///     url_str,
-    ///     "https://dav.example.com/dav/我的坚果云/书签"
-    /// );
     /// # Ok(())
     /// # }
     /// ```
-    fn format_url_path(
+    async fn format_url_path(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         path: &str,
     ) -> Result<String, WebDavClientError>;
 }

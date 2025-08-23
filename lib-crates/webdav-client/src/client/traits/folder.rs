@@ -1,7 +1,10 @@
+use async_trait::async_trait;
 use crate::client::enums::client_enum::Depth;
 use crate::client::error::WebDavClientError;
 use crate::client::structs::raw_xml::MultiStatus;
+use crate::client::structs::webdav_child_client::WebDavChildClientKey;
 
+#[async_trait]
 pub trait Folder {
     /// 通过 WebDAV `PROPFIND` 请求获取指定路径下的资源列表或属性信息。
     ///
@@ -42,11 +45,12 @@ pub trait Folder {
     /// # Ok(())
     /// # }
     /// ```
-    fn get_folders(
+    async fn get_folders(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         path: &str,
         depth: Depth,
-    ) -> impl Future<Output = Result<MultiStatus, WebDavClientError>> + Send;
+    ) -> Result<MultiStatus, WebDavClientError>;
 
     /// 获取单个文件或目录的元数据（Depth 固定为 0）。
     ///
@@ -84,13 +88,9 @@ pub trait Folder {
     /// # Ok(())
     /// # }
     /// ```
-    fn get_file_meta(
+    async fn get_file_meta(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         file_path: &str,
-    ) -> impl Future<Output = Result<MultiStatus, WebDavClientError>> + Send;
-
-    fn exists(
-        &self,
-        path: &str,
-    ) -> impl Future<Output = Result<bool, WebDavClientError>> + Send;
+    ) -> Result<MultiStatus, WebDavClientError>;
 }

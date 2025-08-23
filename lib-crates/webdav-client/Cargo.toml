@@ -7,27 +7,26 @@ edition = "2024"
 doctest = false
 
 [features]
-default = ["friendly-xml", "lang-en", "friendly-error"]
-friendly-error = []
+default = ["friendly-xml"]
 friendly-xml = []
-lang-zh = []
-lang-en = []
-
-[package.metadata.no-overlapping-features]
-groups = [
-    ["lang-zh", "lang-en"]
-]
+show-test-detail = []
 
 [dependencies]
 tokio = { workspace = true }
-reqwest = { workspace = true }
+reqwest = { workspace = true, default-features = false, features = [
+    "rustls-tls",
+    "json",
+    "stream",
+    "gzip",
+    "cookies",
+] }
 serde = { workspace = true }
 quick-xml = { workspace = true, features = ["serialize"] }
 base64 = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 serde_json = { workspace = true }
 percent-encoding = { workspace = true }
+async-trait = {workspace = true}
 
 [dev-dependencies]
-env-config = { workspace = true }
-dotenvy = {workspace = true}
+dotenvy = { workspace = true }

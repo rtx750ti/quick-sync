@@ -2,21 +2,30 @@ use crate::client::WebDavClient;
 use crate::client::enums::client_enum::Depth;
 use crate::client::error::WebDavClientError;
 use crate::client::structs::raw_xml::MultiStatus;
+use crate::client::structs::webdav_child_client::WebDavChildClientKey;
 use crate::client::traits::folder::Folder;
 use crate::client::traits::url_trait::UrlParse;
 use crate::public_enums::WebDavMethod;
+use async_trait::async_trait;
 use quick_xml::de::from_str;
 use reqwest::header::{CONTENT_TYPE, HeaderMap, HeaderValue};
+use std::sync::Arc;
 
+#[async_trait]
 impl Folder for WebDavClient {
     async fn get_folders(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         path: &str,
         depth: Depth,
     ) -> Result<MultiStatus, WebDavClientError> {
-        let url = self.format_url_path(path)?;
+        let client = self.try_get_client(web_dav_child_client_key)?;
 
-        println!("最后请求的地址 {}", url);
+        let client = Arc::clone(&client);
+        // 上读锁
+        let guard = client.read().await;
+        
+        let url = self.format_url_path(web_dav_child_client_key, path).await?;
 
         // WebDAV PROPFIND 请求体
         let propfind_body = r#"<?xml version="1.0" encoding="utf-8" ?>
@@ -37,7 +46,7 @@ impl Folder for WebDavClient {
         let method = WebDavMethod::PROPFIND.try_into()?;
 
         // 发送 PROPFIND 到基准目录（已保证有尾部斜杠）
-        let res = self
+        let res = guard
             .client
             .request(method, url)
             .headers(headers)
@@ -65,15 +74,10 @@ impl Folder for WebDavClient {
 
     async fn get_file_meta(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         file_path: &str,
     ) -> Result<MultiStatus, WebDavClientError> {
-        self.get_folders(file_path, Depth::Zero).await
-    }
-
-    async fn exists(
-        &self,
-        _path: &str,
-    ) -> Result<bool, WebDavClientError> {
-        Err(WebDavClientError::String("todo".to_string()))
+        self.get_folders(web_dav_child_client_key, file_path, Depth::Zero)
+            .await
     }
 }

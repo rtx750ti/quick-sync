@@ -11,6 +11,10 @@ impl Display for WebDavClientError {
             WebDavClientError::SerdeJsonErr(e) => write!(f, "{}", e),
             WebDavClientError::SerdeErr(e) => write!(f, "{}", e),
             WebDavClientError::ParseUrlErr(e) => write!(f, "{}", e),
+            WebDavClientError::TryLockError(e) => write!(f, "{}", e),
+            WebDavClientError::NotFindClient(e) => {
+                write!(f, "Not find Client from {}", e)
+            }
         }
     }
 }
