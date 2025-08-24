@@ -51,6 +51,7 @@ base64 = { version = "0.22" }
 percent-encoding = { version = "2.3" }
 dotenvy = { version = "0.15.7" }
 async-trait = {version = "0.1.89"}
+sha2 = {version = "0.10.9"}
 
 [profile.dev]
 opt-level = 0

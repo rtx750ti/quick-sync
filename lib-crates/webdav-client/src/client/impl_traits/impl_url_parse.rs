@@ -5,7 +5,6 @@ use crate::client::traits::url_trait::UrlParse;
 use async_trait::async_trait;
 use reqwest::Url;
 use std::str::FromStr;
-use std::sync::Arc;
 
 #[async_trait]
 impl UrlParse for WebDavClient {
@@ -20,16 +19,17 @@ impl UrlParse for WebDavClient {
             println!("输入 path: {}", path);
             println!(
                 "WebDavChildClientKey.base_url: {}",
-                web_dav_child_client_key.base_url
+                web_dav_child_client_key.get_base_url()
             );
             println!(
                 "WebDavChildClientKey.username: {}",
-                web_dav_child_client_key.username
+                web_dav_child_client_key.get_base_url()
             );
         }
 
-        let base_url = Url::from_str(&web_dav_child_client_key.base_url)
-            .expect("base_url 在 new 时已验证为合法 URL"); // 这个panic永远不会触发，因为在web_dav_child_client_key构建时就已经避免了这个问题
+        let base_url =
+            Url::from_str(&web_dav_child_client_key.get_base_url())
+                .expect("base_url 在 new 时已验证为合法 URL"); // 这个panic永远不会触发，因为在web_dav_child_client_key构建时就已经避免了这个问题
 
         let joined_url = base_url
             .join(path)

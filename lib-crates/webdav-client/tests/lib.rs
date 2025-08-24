@@ -33,3 +33,20 @@ pub fn load_account(path: &str) -> WebDavAccount {
             .expect("缺少 WEBDAV_PASSWORD"),
     }
 }
+
+#[cfg(test)]
+pub fn assert_test_result(
+    ok_count: usize,
+    err_count: usize,
+    expected_ok_count: usize,
+    expected_err_count: usize,
+    test_name: &str,
+) {
+    println!("统计结果：正确 {} 个，错误 {} 个", ok_count, err_count);
+
+    if ok_count == expected_ok_count && err_count == expected_err_count {
+        println!("测试结果: OK ✅");
+    } else {
+        panic!("❌ 测试异常[{}]：统计数量不匹配", test_name);
+    }
+}
