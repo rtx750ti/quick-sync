@@ -1,3 +1,5 @@
+use crate::client::error::WebDavClientError;
+use crate::client::structs::webdav_child_client::WebDavChildClientKey;
 use async_trait::async_trait;
 
 pub enum ThreadMode {
@@ -6,39 +8,30 @@ pub enum ThreadMode {
     MultipleThread,
 }
 
-pub enum TrafficControl {
-    Auto,      // 自动控制，根据系统状态动态调整
-    Manual,    // 手动控制，由用户或管理员干预
-    Throttled, // 限速模式，限制流量以防止过载
-}
-
 pub struct DownloadConfig {
+    /// 线程模式
     pub thread_mode: ThreadMode,
-    pub traffic_control: TrafficControl,
+    /// 自动分片
+    pub auto_segment_file: bool,
 }
 
 impl DownloadConfig {
-    pub fn new(
-        thread_mode: ThreadMode,
-        traffic_control: TrafficControl,
-    ) -> Self {
-        Self { thread_mode, traffic_control }
+    pub fn new(thread_mode: ThreadMode, auto_segment_file: bool) -> Self {
+        Self { thread_mode, auto_segment_file }
     }
 
     pub fn new_default_config() -> Self {
-        Self {
-            thread_mode: ThreadMode::Auto,
-            traffic_control: TrafficControl::Auto,
-        }
+        Self { thread_mode: ThreadMode::Auto, auto_segment_file: true }
     }
 }
 
 #[async_trait]
 pub trait Download {
-    async fn download_file(
+    async fn download_files(
         &self,
+        web_dav_child_client_key: &WebDavChildClientKey,
         files_path: Vec<String>,
-        output_path: String,
+        output_path: &str,
         download_config: Option<DownloadConfig>,
-    ) -> String;
+    ) -> Result<String, WebDavClientError>;
 }

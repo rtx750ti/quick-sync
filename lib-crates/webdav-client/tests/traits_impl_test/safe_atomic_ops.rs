@@ -91,7 +91,7 @@ async fn test_remove_account() -> Result<(), WebDavClientError> {
             client.add_account(&acc.url, &acc.username, &acc.password)?;
 
         // 测试删除账号
-        let remove_result = client.remove_account(&acc.url, &acc.username);
+        let remove_result = client.remove_account(&acc.url, &acc.username).await;
         let is_ok = remove_result.is_ok();
 
         if is_ok {

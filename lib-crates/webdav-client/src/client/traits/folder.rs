@@ -1,8 +1,11 @@
-use async_trait::async_trait;
 use crate::client::enums::client_enum::Depth;
 use crate::client::error::WebDavClientError;
 use crate::client::structs::raw_xml::MultiStatus;
 use crate::client::structs::webdav_child_client::WebDavChildClientKey;
+use async_trait::async_trait;
+
+pub type TFileMetas = Vec<Result<MultiStatus, WebDavClientError>>;
+pub type TFolders = Vec<Result<MultiStatus, WebDavClientError>>;
 
 #[async_trait]
 pub trait Folder {
@@ -49,8 +52,15 @@ pub trait Folder {
         &self,
         web_dav_child_client_key: &WebDavChildClientKey,
         path: &str,
-        depth: Depth,
+        depth: &Depth,
     ) -> Result<MultiStatus, WebDavClientError>;
+
+    async fn collect_folders(
+        &self,
+        key: &WebDavChildClientKey,
+        files_path: &Vec<String>,
+        depth: &Depth,
+    ) -> Result<TFolders, WebDavClientError>;
 
     /// 获取单个文件或目录的元数据（Depth 固定为 0）。
     ///
@@ -93,4 +103,10 @@ pub trait Folder {
         web_dav_child_client_key: &WebDavChildClientKey,
         file_path: &str,
     ) -> Result<MultiStatus, WebDavClientError>;
+
+    async fn collect_file_metas(
+        &self,
+        key: &WebDavChildClientKey,
+        files_path: &Vec<String>,
+    ) -> Result<TFileMetas, WebDavClientError>;
 }

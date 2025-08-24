@@ -107,7 +107,7 @@ async fn test_get_folders() -> Result<(), WebDavClientError> {
             client.add_account(&acc.url, &acc.username, &acc.password)?;
 
         let result = client
-            .get_folders(&webdav_child_client_key, folder_path, Depth::One)
+            .get_folders(&webdav_child_client_key, folder_path, &Depth::One)
             .await;
 
         let is_ok = result.is_ok();
@@ -161,3 +161,4 @@ async fn test_get_folders() -> Result<(), WebDavClientError> {
     println!("======读取文件夹测试结束======");
     Ok(())
 }
+

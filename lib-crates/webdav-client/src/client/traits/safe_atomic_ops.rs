@@ -22,7 +22,7 @@ pub trait SafeAtomicOps {
         arc_client.try_write().is_ok()
     }
 
-    fn remove_account(
+   async fn remove_account(
         &mut self,
         base_url: &str,
         username: &str,

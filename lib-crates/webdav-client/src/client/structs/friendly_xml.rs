@@ -1,10 +1,10 @@
+use crate::client::error::WebDavClientError;
 use crate::client::structs::raw_xml::{
     CurrentUserPrivilegeSet, MultiStatus, Prop, PropStat, Response,
 };
-use crate::client::error::WebDavClientError;
 use chrono::{DateTime, FixedOffset};
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, serde::Serialize, Clone)]
 pub struct FriendlyResource {
     pub full_path: String, // 文件的完整路径（从 href 拿到）
     pub name: String,      // 友好化的文件或目录名

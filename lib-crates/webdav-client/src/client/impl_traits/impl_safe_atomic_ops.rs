@@ -45,7 +45,7 @@ impl SafeAtomicOps for WebDavClient {
         Ok(webdav_child_client_key)
     }
 
-    fn remove_account(
+    async fn remove_account(
         &mut self,
         base_url: &str,
         username: &str,
@@ -61,7 +61,8 @@ impl SafeAtomicOps for WebDavClient {
             println!("构建的key: {:?}", key);
         }
 
-        let client = self.try_get_client(&key)?;
+        let client = self.try_get_client_arc(&key)?;
+
         if !Self::can_modify_value(client) {
             return Err(WebDavClientError::String(
                 "该账号未释放".to_string(),

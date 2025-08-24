@@ -2816,6 +2816,7 @@ dependencies = [
  "base64",
  "chrono",
  "dotenvy",
+ "futures-util",
  "percent-encoding",
  "quick-xml",
  "reqwest",

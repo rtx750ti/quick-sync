@@ -1,5 +1,5 @@
+use crate::client::TWebDavChildClientValue;
 use crate::client::error::WebDavClientError;
-use crate::client::{BaseUrl, TWebDavChildClientValue, UserName};
 use base64::Engine;
 use reqwest::header::{AUTHORIZATION, HeaderMap, HeaderValue};
 use reqwest::{Client, Url};
@@ -51,8 +51,8 @@ pub(crate) fn build_client_with_auth(
 
 impl WebDavChildClientKey {
     pub fn new(
-        base_url: &BaseUrl,
-        username: &UserName,
+        base_url: &str,
+        username: &str,
     ) -> Result<Self, WebDavClientError> {
         let url = format_url(base_url)?;
         Ok(Self {
